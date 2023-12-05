@@ -1,43 +1,76 @@
+import org.junit.Test;
+import static org.junit.Assert.*;
+import org.mockito.Mockito;
+
+import java.io.ByteArrayInputStream;
 import java.util.List;
 import java.util.Random;
+import java.util.Scanner;
 
-public class BlackjackGame {
+public class BlackJackGameTest {
 
-    public static int getIntegerInput(Scanner scanner) {
-        // Placeholder implementation for demonstration purposes
-        return scanner.nextInt();
+    @Test
+    public void testDrawCard() {
+        // Create a deck with known cards
+        List<BlackjackCard> deck = List.of(
+                new BlackjackCard("Hearts", "2", 2),
+                new BlackjackCard("Diamonds", "7", 7),
+                new BlackjackCard("Clubs", "Ace", 11)
+        );
+
+        // Mock a Random object to return a specific index
+        Random mockRandom = Mockito.mock(Random.class);
+        Mockito.when(mockRandom.nextInt(Mockito.anyInt())).thenReturn(1);
+
+        // Draw a card and check if it's the expected card
+        BlackjackCard drawnCard = BlackJackGame.drawCard(deck, mockRandom);
+        assertEquals("Diamonds", drawnCard.getSuit());
+        assertEquals("7", drawnCard.getValue());
+        assertEquals(7, drawnCard.getValue());
     }
 
-    public static List<BlackjackCard> createDeck() {
-        // Placeholder implementation for demonstration purposes
-        return null;
+    @Test
+    public void testGetIntegerInputInvalidInput() {
+        // Create a ByteArrayInputStream to simulate user input
+        ByteArrayInputStream inputStream = new ByteArrayInputStream("invalid\n5".getBytes());
+        System.setIn(inputStream);
+
+        // Create a new scanner using the mocked input stream
+        Scanner scanner = new Scanner(System.in);
+
+        // Test the getIntegerInput method
+        int result = BlackJackGame.getIntegerInput(scanner);
+
+        // Ensure that the method handled invalid input and returned the valid input
+        assertEquals(5, result);
+        
+        // Clean up: restore the original input stream
+        System.setIn(System.in);
     }
 
-    public static BlackjackCard drawCard(List<BlackjackCard> deck, Random random) {
-        // Placeholder implementation for demonstration purposes
-        return null;
+    @Test
+    public void testCalculateScore() {
+        // Test case 1: Test calculating the score with Aces as 11
+        BlackjackCard card1 = new BlackjackCard("Hearts", "Ace", 11);
+        BlackjackCard card2 = new BlackjackCard("Diamonds", "8", 8);
+        assertEquals(19, BlackJackGame.calculateScore(List.of(card1, card2)));
+
+        // Test case 2: Test calculating the score with Aces as 1
+        BlackjackCard card3 = new BlackjackCard("Clubs", "Ace", 11);
+        BlackjackCard card4 = new BlackjackCard("Spades", "King", 10);
+        assertEquals(21, BlackJackGame.calculateScore(List.of(card3, card4)));
     }
 
-    public static int calculateScore(List<BlackjackCard> hand) {
-        // Placeholder implementation for demonstration purposes
-        return 0;
-    }
+    @Test
+    public void testPlayerClass() {
+        // Create a new player
+        BlackJackGame.Player player = new BlackJackGame.Player("John");
 
-    public static class Player {
-        private String name;
-        private List<BlackjackCard> hand;
+        // Ensure that the player's name is set correctly
+        assertEquals("John", player.getName());
 
-        public Player(String name) {
-            this.name = name;
-            this.hand = new ArrayList<>(); // Assuming you have an implementation of BlackjackCard
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public List<BlackjackCard> getHand() {
-            return hand;
-        }
+        // Ensure that the player's hand is initially empty
+        assertTrue(player.getHand().isEmpty());
     }
 }
+
